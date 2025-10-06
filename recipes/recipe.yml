@@ -1,20 +1,10 @@
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
-# image will be published to ghcr.io/<user>/<name>
 name: JohnAtl_Bluefin
 # description will be included in the image's metadata
 description: This is my OS image based on John's specifications.
----
-# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
-# image will be published to ghcr.io/<user>/<name>
-name: bluefin
-# description will be included in the image's metadata
-description: This is a custom image that includes 1Password to work with Firefox and Chromium. It also includes PowerShell via .NET SDK, Astra Monitor, Tiling Shell, and amdgpu_top for AMD GPU monitoring.
-
-# the base image to build on top of (FROM) and the version tag to use
 base-image: bluefin-dx-nvidia-open
 image-version: gts
-
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
@@ -25,15 +15,15 @@ modules:
 
   - type: rpm-ostree
     repos:
-      # - https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
-      # - https://packages.microsoft.com/fedora/42/prod/config.repo
-      # - https://packages.microsoft.com/yumrepos/edge/config.repo
+    # - https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    # - https://packages.microsoft.com/fedora/42/prod/config.repo
+    # - https://packages.microsoft.com/yumrepos/edge/config.repo
     optfix:
-      # - brave.com
-      # - microsoft
+    # - brave.com
+    # - microsoft
     keys:
-      # - https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
-      # - https://packages.microsoft.com/keys/microsoft-2025.asc
+    # - https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+    # - https://packages.microsoft.com/keys/microsoft-2025.asc
     install:
       # - brave-browser
       # - microsoft-edge-stable
@@ -41,6 +31,8 @@ modules:
       # - packages-microsoft-prod
       - chromium
       - dotnet-sdk-9.0
+      - kernel-devel
+      - https://raw.githubusercontent.com/zfsonlinux/zfsonlinux.github.com/refs/heads/master/fedora/zfs-release-2-8.fc42.noarch.rpm
       # - nethogs # network traffic monitor for Astra Monitor
       # - https://github.com/Umio-Yasuno/amdgpu_top/releases/download/v0.10.5/amdgpu_top-0.10.5-1.x86_64.rpm # GPU monitoring tool for Astra Monitor
       - https://corretto.aws/downloads/latest/amazon-corretto-21-x64-linux-jdk.rpm
@@ -51,6 +43,13 @@ modules:
   - type: bling
     install:
       - 1password
+      -
+  - type: rpm-ostree
+    repos:
+    optfix:
+    keys:
+    install:
+      - kernel-devel-$(uname -r | awk -F'-' '{print $1}')
 
   # Install PowerShell via .NET SDK
   - type: script
@@ -58,10 +57,22 @@ modules:
       - "dotnet tool install --global PowerShell"
       - "dotnet tool update --global PowerShell"
 
+  - type: rpm-ostree
+    repos:
+    optfix:
+    keys:
+    install:
+      - zfs
+
   # Install Astra Monitor and Tiling Shell GNOME extensions (for AMD GPU monitoring and window tiling)
   # - type: gnome-extensions
   #   install:
   #     - Astra Monitor
   #     - Tiling Shell
+  - type: script
+    snippets:
+      - "modprobe zfs"
+      - "echo zfs > /etc/modules-load.d/zfs.conf"
+      - "echo 'zfs' > /etc/dnf/protected.d/zfs.conf"
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
