@@ -14,14 +14,14 @@ modules:
         destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
 
   - type: rpm-ostree
-    repos:
+    # repos:
     # - https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
     # - https://packages.microsoft.com/fedora/42/prod/config.repo
     # - https://packages.microsoft.com/yumrepos/edge/config.repo
-    optfix:
+    # optfix:
     # - brave.com
     # - microsoft
-    keys:
+    # keys:
     # - https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
     # - https://packages.microsoft.com/keys/microsoft-2025.asc
     install:
@@ -43,7 +43,7 @@ modules:
   - type: bling
     install:
       - 1password
-      -
+
   - type: rpm-ostree
     install:
       - kernel-devel-$(uname -r | awk -F'-' '{print $1}')
