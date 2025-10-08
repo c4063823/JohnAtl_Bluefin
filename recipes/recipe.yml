@@ -46,7 +46,7 @@ modules:
 
   - type: rpm-ostree
     install:
-      - kernel-devel-$(uname -r | awk -F'-' '{print $1}')
+      - kernel-devel-6.16.7
 
   # Install PowerShell via .NET SDK
   - type: script
